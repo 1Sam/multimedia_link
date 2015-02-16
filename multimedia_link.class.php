@@ -42,6 +42,7 @@ class multimedia_link extends EditorHandler
 		$src = $xml_obj->attrs->multimedia_src;
 		$start = $xml_obj->attrs->multimedia_start;
 		$style = $xml_obj->attrs->style;
+		$responsive = $xml_obj->attrs->multimedia_responsive;
 
 		/*//뭔가 이상해서 attrs에서 값을 참조하도록 수정하였음
 		preg_match_all('/(width|height)([^[:digit:]]+)([0-9]+)/i',$style,$matches);
@@ -164,8 +165,27 @@ class multimedia_link extends EditorHandler
 				$yh = new YoutubeHelper;
 		
 				$yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
+				
+				
+				if($responsive) $css_style = "<style>
+				.videowrapper {
+					float: none;
+					clear: both;
+					width: 100%;
+					position: relative;
+					padding-bottom: 56.25%;
+					padding-top: 25px;
+					height: 0;
+				}
+				.videowrapper iframe {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+				}</style>";
 
-				return $yt_html_code.'<div id="youtube-player'.$yt_id.'"></div>';
+				return '<pre>'.print_r($xml_obj,true).'</pre>'.$css_style.$yt_html_code.'<div class="videowrapper"><div id="youtube-player'.$yt_id.'"></div></div>';
 			
 		}
 
