@@ -184,8 +184,8 @@ class multimedia_link extends EditorHandler
 					width: 100%;
 					height: 100%;
 				}</style>";
-
-				return '<pre>'.print_r($xml_obj,true).'</pre>'.$css_style.$yt_html_code.'<div class="videowrapper"><div id="youtube-player'.$yt_id.'"></div></div>';
+				//'<pre>'.print_r($xml_obj,true).'</pre>'.
+				return $css_style.$yt_html_code.'<div class="videowrapper"><div id="youtube-player'.$yt_id.'"></div></div>';
 			
 		}
 
