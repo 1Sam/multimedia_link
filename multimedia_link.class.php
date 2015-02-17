@@ -134,19 +134,25 @@ class multimedia_link extends EditorHandler
 						 *  
 						 * holds parameters for embedded player 
 						 * @see http://code.google.com/apis/youtube/player_parameters.html?playerVersion=HTML5 
+						 https://developers.google.com/youtube/youtube_player_demo?hl=ko
 						 */
 
 						$yt_options[$yt_id]["playerVars"] = array (
-						'autohide'  => 2, 
+						'autohide'  => 1, 
 						'autoplay'  => $auto_play, 
-						'controls'  => 1, 
-						'enablejsapi'   => 0, 
+						'controls'  => 1,
+						'color'		=>  'red',//'white';
+						'controls'	=> 1,
+						'disablekb'	=> 0,
+						'enablejsapi'   => 1,
 						'loop'      => 0, 
+						'modestbranding'	=> 1,
 						'origin'    => null, 
+						'rel'		=> 0, //관련영상 출력
 						'start'     => null,
 						'loop'		=> $yt_loop,
 						'playlist'	=> $yt_playlist,
-						'theme'     => 'dark');
+						'theme'     => 'light');//'dark');
 						
 						$yt_options[$yt_id]["event"] = array (
 						'volume'	=> $volume); 
@@ -165,16 +171,21 @@ class multimedia_link extends EditorHandler
 						'video_id'  => $yt_id);
 						
 						$yt_options[$yt_id]["playerVars"] = array (
-						'autohide'  => 2, 
+						'autohide'  => 1, 
 						'autoplay'  => $auto_play, 
-						'controls'  => 1, 
-						'enablejsapi'   => 0, 
+						'controls'  => 1,
+						'color'		=>  'red',//'white';
+						'controls'	=> 1,
+						'disablekb'	=> 0,
+						'enablejsapi'   => 1,
 						'loop'      => 0, 
+						'modestbranding'	=> 1,
 						'origin'    => null, 
+						'rel'		=> 0, //관련영상 출력
 						'start'     => null,
 						'loop'		=> $yt_loop,
 						'playlist'	=> $yt_playlist,
-						'theme'     => 'dark');
+						'theme'     => 'light');//'dark');
 
 						$yt_options[$yt_id]["event"] = array (
 						'volume'	=> $volume); 
