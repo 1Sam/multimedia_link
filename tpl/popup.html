@@ -1,6 +1,7 @@
 <!--%import("../lang")-->
 <!--%import("popup.js")-->
-<!--%import("popup.css")-->
+
+<load target="popup.css" />
 
 <section class="section">
 	<h1>{$component_info->title} ver. {$component_info->version}</h1>
@@ -31,9 +32,15 @@
 			</div>
 		</div>
 		<div class="x_control-group">
+			<label for="volume" class="x_control-label">Volume</label>
+			<div class="x_controls">
+				<input type="text" placeholder="70" size="3" id="volume" value="" /> %
+			</div>
+		</div>
+		<div class="x_control-group">
 			<label for="" class="x_control-label">{$lang->multimedia_auto_start}</label>
 			<div class="x_controls">
-				<input type="checkbox" id="multimedia_auto_start" value="Y" checked="checked" />
+				<input type="checkbox" id="auto_start" value="Y" checked="checked" />
 			</div>
 		</div>
 
@@ -43,6 +50,26 @@
 				<input type="checkbox" id="multimedia_start" value="Y" checked="checked" />
 			</div>
 		</div>
+
+		<div class="x_control-group">
+			<label for="multimedia_responsive" class="x_control-label">반응형</label>
+			<div class="x_controls">
+				<input type="checkbox" id="multimedia_responsive" value="Y" checked="checked" />
+			</div>
+		</div>
+
+		<div class="x_control-group">
+			<label for="yt_loop" class="x_control-label">반복</label>
+			<div class="x_controls">
+				<input type="checkbox" id="yt_loop" value="Y" checked="checked"/>
+			</div>
+		</div>
+
+<!-- 필요한 옵션을 아래에 추가해 주세요 -->
+
+
+
+
 
 
 		<div class="x_control-group">
