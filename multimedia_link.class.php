@@ -145,7 +145,7 @@ class multimedia_link extends EditorHandler
 						'origin'    => null, 
 						'start'     => null,
 						'loop'		=> $yt_loop,
-						'playlist'	=> $yt_playlis,
+						'playlist'	=> $yt_playlist,
 						'theme'     => 'dark');
 						
 						$yt_options[$yt_id]["event"] = array (
@@ -173,7 +173,7 @@ class multimedia_link extends EditorHandler
 						'origin'    => null, 
 						'start'     => null,
 						'loop'		=> $yt_loop,
-						'playlist'	=> $yt_playlis,
+						'playlist'	=> $yt_playlist,
 						'theme'     => 'dark');
 
 						$yt_options[$yt_id]["event"] = array (
