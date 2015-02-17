@@ -442,7 +442,7 @@ class YoutubeHelper {
 		// 참고 https://developers.google.com/youtube/iframe_api_reference?hl=ko
 		foreach($divIds as $divId) {
 			$this->_iframeCode .= "function onPlayerReady".$divId."(event) {
-	event.target.playVideo('player".$divId."');
+	//event.target.playVideo('player".$divId."');
 	player".$divId.".setVolume(".$options[$divId]['event']['volume'].");
 	player".$divId.".setPlaybackQuality('highres');"."\r\n";
 
