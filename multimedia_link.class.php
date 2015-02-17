@@ -103,9 +103,10 @@ class multimedia_link extends EditorHandler
 		$src = str_replace(array('&','"'), array('&amp;','&qout;'), $src);
 		$src = str_replace('&amp;amp;', '&amp;', $src);
 
-		if(preg_match_all('/(?:(youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/embed\/))(.*)(?:\/W)?/i',$src,$matches)) {
+		//if(preg_match_all('/(?:(youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/embed\/))(.*)(?:\/W)?/i',$src,$matches)) {
+if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11}?)/i',$src,$matches)) {
 
-			if(strpos($src,"list=") !== false){
+			/*if(strpos($src,"list=") !== false){
 					$youtube_id = substr($matches[2][0], 0, 35);
 					
 					//$youtube_id = $youtube_id.'&amp;';
@@ -113,9 +114,10 @@ class multimedia_link extends EditorHandler
 					$youtube_id = substr($matches[2][0], 0, 11);
 					//$youtube_id = $youtube_id.'?';
 					
-			}
+			}*/
 				// youtube의 id
-				$yt_id = $youtube_id;
+				//$yt_id = $youtube_id;
+				$yt_id = $matches[1][0];
 				$yt_ids = Context::get('yt_ids');
 				$yt_options = Context::get('yt_options');
 				// <div>의 개별 코드로 활용됨 ex) <div id="plyaer0">, <div id="plyaer1">
