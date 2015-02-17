@@ -43,6 +43,14 @@ class multimedia_link extends EditorHandler
 		$start = $xml_obj->attrs->multimedia_start;
 		$style = $xml_obj->attrs->style;
 		$responsive = $xml_obj->attrs->multimedia_responsive;
+		$volume = $xml_obj->attrs->volume;
+
+		// https://developers.google.com/youtube/player_parameters?hl=ko#loop
+		// 반복 재생을 위해서는 playlist가 꼭 필요함. 따라서 playlist에 자신의 id를 아래에서 지정하게 함.
+
+		//popup.html 에서 넘어온 추가 옵션
+		$yt_loop = $xml_obj->attrs->yt_loop;
+		//$playlist = 
 
 		/*//뭔가 이상해서 attrs에서 값을 참조하도록 수정하였음
 		preg_match_all('/(width|height)([^[:digit:]]+)([0-9]+)/i',$style,$matches);
@@ -84,7 +92,8 @@ class multimedia_link extends EditorHandler
 		$src = str_replace(array('&','"'), array('&amp;','&qout;'), $src);
 		$src = str_replace('&amp;amp;', '&amp;', $src);
 
-		if(preg_match_all('/(youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/embed\/)(.*)(?:\/W)?/i',$src,$matches)) {
+		if(preg_match_all('/(?:(youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/embed\/))(.*)(?:\/W)?/i',$src,$matches)) {
+
 			if(strpos($src,"list=") !== false){
 					$youtube_id = substr($matches[2][0], 0, 35);
 					
@@ -99,7 +108,9 @@ class multimedia_link extends EditorHandler
 				$yt_ids = Context::get('yt_ids');
 				$yt_options = Context::get('yt_options');
 				// <div>의 개별 코드로 활용됨 ex) <div id="plyaer0">, <div id="plyaer1">
-				
+				//플레이 리스트는 일단 자기 자신만 테스트삼아 추가
+				if($yt_loop == "1") $yt_playlist = $yt_id;
+
 				// 처음일 경우에는 0임
 				if(empty($yt_ids)) {
 					// 변수를 선언하고 첫번째 값 대입
@@ -132,8 +143,14 @@ class multimedia_link extends EditorHandler
 						'enablejsapi'   => 0, 
 						'loop'      => 0, 
 						'origin'    => null, 
-						'start'     => null, 
+						'start'     => null,
+						'loop'		=> $yt_loop,
+						'playlist'	=> $yt_playlis,
 						'theme'     => 'dark');
+						
+						$yt_options[$yt_id]["event"] = array (
+						'volume'	=> $volume); 
+
 
 					Context::set('yt_options', $yt_options);
 
@@ -154,8 +171,14 @@ class multimedia_link extends EditorHandler
 						'enablejsapi'   => 0, 
 						'loop'      => 0, 
 						'origin'    => null, 
-						'start'     => null, 
+						'start'     => null,
+						'loop'		=> $yt_loop,
+						'playlist'	=> $yt_playlis,
 						'theme'     => 'dark');
+
+						$yt_options[$yt_id]["event"] = array (
+						'volume'	=> $volume); 
+
 					Context::set('yt_options', $yt_options);
 				}				
 
@@ -167,7 +190,7 @@ class multimedia_link extends EditorHandler
 				$yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
 				
 				
-				if($responsive) $css_style = "<style>
+				if($responsive == "true") $css_style = "<style>
 				.videowrapper {
 					float: none;
 					clear: both;
@@ -185,7 +208,7 @@ class multimedia_link extends EditorHandler
 					height: 100%;
 				}</style>";
 				//'<pre>'.print_r($xml_obj,true).'</pre>'.
-				return $css_style.$yt_html_code.'<div class="videowrapper"><div id="youtube-player'.$yt_id.'"></div></div>';
+				return $css_style.$yt_html_code.'<div class="videowrapper"><div id="player'.$yt_id.'"></div></div>';
 			
 		}
 
@@ -316,7 +339,10 @@ class YoutubeHelper {
             $this->_iframeCode = __('Height of video player must be numeric and greather than 1.',true); 
         } else { 
             // Build code. 
-            $this->_loadIframePlayer(); 
+  			$this->_iframeCode  = "\r\n".'<script type="text/javascript">'."\r\n";
+			
+            if(count($divId) == 1) $this->_loadIframePlayer();
+
             $this->_createIframePlayer($divId, $options); 
             $this->_closeIframePlayer(); 
         } 
@@ -331,7 +357,7 @@ class YoutubeHelper {
      * closes iframe player. 
      */ 
     function _closeIframePlayer() { 
-        $this->_iframeCode  .= '</script>'; 
+        $this->_iframeCode  .= '</script>'."\r\n"; 
     } 
 
     /** 
@@ -359,17 +385,20 @@ class YoutubeHelper {
         } */
 
         // Build JS code. 
-        $this->_iframeCode .= 'var player;'."\r\n"; 
-        $this->_iframeCode .= 'function onYouTubePlayerAPIReady() {'."\r\n"; 
-		
+
 		foreach($divIds as $divId) {
-			$this->_iframeCode .= 'player = new YT.Player("youtube-player'.$divId.'", {'."\r\n"; 
+	        $this->_iframeCode .= 'var player'.$divId.';'."\r\n"; 
+		}
+
+   	    $this->_iframeCode .= 'function onYouTubePlayerAPIReady() {'."\r\n";		
+		foreach($divIds as $divId) {
+			$this->_iframeCode .= '	player'.$divId.' = new YT.Player("player'.$divId.'", {'."\r\n"; 
 			//$this->_iframeCode .= 'height: "'.(int)$this->_options['height'].'",'."\r\n"; 
-			$this->_iframeCode .= 'height: "'.(int)$options[$divId]['height'].'",'."\r\n"; 
+			$this->_iframeCode .= '	height: "'.(int)$options[$divId]['height'].'",'."\r\n"; 
 			//$this->_iframeCode .= 'width:  "'.(int)$this->_options['width'].'",'."\r\n"; 
-			$this->_iframeCode .= 'width:  "'.(int)$options[$divId]['width'].'",'."\r\n"; 
+			$this->_iframeCode .= '	width:  "'.(int)$options[$divId]['width'].'",'."\r\n"; 
 			//$this->_iframeCode .= 'videoId: "'.$this->_options['video_id'].'",'."\r\n"; 
-			$this->_iframeCode .= 'videoId: "'.$divId.'",'."\r\n"; 
+			$this->_iframeCode .= '	videoId: "'.$divId.'",'."\r\n"; 
 
 
 			/*if(!empty($params)) { 
@@ -382,25 +411,59 @@ class YoutubeHelper {
 			foreach($options[$divId]["playerVars"] as $key => $value) { 
 				if(is_numeric($value) || !empty($value)) { 
 					 $options_params .= "'{$key}': "; 
+					 
+					 /*if(is_numeric($value)) $options_params .= $value; 
+					 else $options_params .= "'{$value}'";*/
+	
+					 //$options_params .= (is_numeric($value)) ? $value :"'{$value}'";
 	  
 					 if(is_numeric($value)) { 
-					  $options_params .= $value; 
+					 		$options_params .= $value; 
 					 } else { 
-						  $options_params .= "'{$value}'"; 
-					 } 
+							$options_params .= "'{$value}'"; 
+					 }
 	
-					 $options_params .= ','; 
+					 $options_params .= ',';
 				}     
 			}
 
 
 			if(!empty($options_params)) { 
-				$this->_iframeCode .= 'playerVars: {'.substr($options_params,0,-1).'},'."\r\n"; 
+				$this->_iframeCode .= '	playerVars: {'.substr($options_params,0,-1).'},'."\r\n"; 
 			}
-		
-	        $this->_iframeCode .= '});'."\r\n"; 
+			// event 추가
+			$this->_iframeCode .="	events: {'onReady':onPlayerReady".$divId.",'onStateChange':onPlayerStateChange".$divId."}"."\r\n";
+			
+	        $this->_iframeCode .= '	});'."\r\n\r\n"; 
 		} 
-        $this->_iframeCode .= '}'."\r\n\r\n";     
+        $this->_iframeCode .= '}'."\r\n\r\n";
+
+		// 동영상 재생 함수
+		// 참고 https://developers.google.com/youtube/iframe_api_reference?hl=ko
+		foreach($divIds as $divId) {
+			$this->_iframeCode .= "function onPlayerReady".$divId."(event) {
+	event.target.playVideo('player".$divId."');
+	player".$divId.".setVolume(".$options[$divId]['event']['volume'].");
+	player".$divId.".setPlaybackQuality('highres');"."\r\n";
+
+
+
+			$this->_iframeCode .= "}"."\r\n\r\n";
+
+			$this->_iframeCode .= "var done".$divId." = false;";
+			//
+			$this->_iframeCode .= "function onPlayerStateChange".$divId."(event) {
+	if (event.data == YT.PlayerState.PLAYING && !done".$divId.") {
+		//setTimeout(stopVideo".$divId.", 6000);
+		done".$divId." = true;
+	}
+}"."\r\n\r\n";
+
+			//
+			$this->_iframeCode .= "function stopVideo".$divId."() {
+	player".$divId.".stopVideo();
+}"."\r\n\r\n";
+		}
     } 
 
     /** 
@@ -409,7 +472,6 @@ class YoutubeHelper {
      * starts building iframe player code. 
      */ 
     function _loadIframePlayer() { 
-        $this->_iframeCode  = '<script type="text/javascript">'."\r\n"; 
         $this->_iframeCode .= 'var tag = document.createElement("script");'."\r\n"; 
         $this->_iframeCode .= 'tag.src = "http://www.youtube.com/player_api"'."\r\n"; 
         $this->_iframeCode .= 'var firstScriptTag = document.getElementsByTagName("script")[0]'."\r\n"; 
