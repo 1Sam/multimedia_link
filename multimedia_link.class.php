@@ -38,16 +38,12 @@ class multimedia_link extends EditorHandler
 
 	function transHTML($xml_obj)
 	{
-
-
 		/*$is_yt = Context::get('is_yt');
 		if(empty($is_yt)) {
 			Context::set('is_yt', $is_yt);
 		} else {
 			Context::set('is_yt', $is_yt);
 		}*/
-
-	
 
 		//popup.html에서 편수 받아 오기
 		$src = $xml_obj->attrs->multimedia_src;
@@ -91,7 +87,6 @@ class multimedia_link extends EditorHandler
 			$auto_option = "autoplay=1";
 		}
 			
-
 		$wmode = $xml_obj->attrs->wmode;
 		if($wmode == 'window') $wmode = 'window';
 		else if($wmode == 'opaque') $wmode = 'opaque';
@@ -131,7 +126,8 @@ if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|y
 					$args->document_srl = $vars->document_srl;
 					$output = executeQuery('document.getDocument', $args, '');
 					
-					preg_match('/<img.*(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11})(?:\/W)?.*[^\?&\"\'>]/i',$output->data->content, $matches);
+					preg_match_all('/<img.*(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11})(?:\/W)?.*[^\?&\"\'>]/i',$output->data->content, $matches);
+
 
 
 					// 변수를 선언하고 첫번째 값 대입
@@ -140,7 +136,7 @@ if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|y
 					Context::set('yt_ids', $yt_ids);
 
 					// $yt_howmany 가 0이되면 마지막임
-					Context::set('yt_howmany', count($matches) -1);
+					Context::set('yt_howmany', (count($matches[0]) -1));
 					$yt_counter = 0;
 					Context::set('yt_counter', 0);
 					
@@ -192,8 +188,8 @@ if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|y
 					
 
 					// $yt_howmany 가 0이되면 마지막임
-					$yt_howmany = Context::get('yt_howmany') -1;
-					Context::set('yt_howmany', $yt_howmany);
+					//$yt_howmany = Context::get('yt_howmany') -1;
+					//Context::set('yt_howmany', $yt_howmany);
 					$yt_counter = Context::get('yt_counter') +1;
 					Context::set('yt_counter', $yt_counter);
 	
@@ -232,7 +228,7 @@ if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|y
 				$yh = new YoutubeHelper;
 		
 				
-				if(Context::get('yt_howmany') == 0) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
+				if(Context::get('yt_howmany') == Context::get('yt_counter')) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
 				
 				
 				if($responsive == "true") $css_style = "<style>
