@@ -165,12 +165,11 @@ class multimedia_link extends EditorHandler
 					'controls'	=> 1,
 					'disablekb'	=> 0,
 					'enablejsapi'   => 1,
-					'loop'      => 0, 
+					'loop'		=> $yt_loop,
 					'modestbranding'	=> 1,
 					'origin'    => null, 
 					'rel'		=> 0, //관련영상 출력
 					'start'     => null,
-					'loop'		=> $yt_loop,
 					'playlist'	=> $yt_playlist,
 					'theme'     => 'light');//'dark');
 					
@@ -205,12 +204,11 @@ class multimedia_link extends EditorHandler
 					'controls'	=> 1,
 					'disablekb'	=> 0,
 					'enablejsapi'   => 1,
-					'loop'      => 0, 
+					'loop'		=> $yt_loop,
 					'modestbranding'	=> 1,
 					'origin'    => null, 
 					'rel'		=> 0, //관련영상 출력
 					'start'     => null,
-					'loop'		=> $yt_loop,
 					'playlist'	=> $yt_playlist,
 					'theme'     => 'light');//'dark');
 
