@@ -6,7 +6,7 @@
 
 
 
-
+<pre>
 https://developers.google.com/youtube/youtube_player_demo?hl=ko
 /*** ABC 순서 (기본값 [옵션]) ***
 ★ autohide         > 컨트롤바를 자동으로 숨길지 여부 (2 [0, 1])
@@ -87,4 +87,5 @@ https://developers.google.com/youtube/youtube_player_demo?hl=ko
 [X] vq            > 화질
                └* 기본 iframe 플레이어에서 작동한 변수
 [X] showsearch
-* * * * * */
+* * * * * *
+</pre>
