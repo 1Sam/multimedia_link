@@ -5,9 +5,10 @@
  * @author NAVER (developers@xpressengine.com)
  * @brief The components connected to the body of multimedia data
  */
+/** 1Sam Online Edtion (csh@korea.com // 1sam.kr) */
+
 class multimedia_link extends EditorHandler
 {
-
 	// editor_sequence from the editor must attend mandatory wearing ....
 	var $editor_sequence = 0;
 	var $component_path = '';
@@ -97,9 +98,8 @@ class multimedia_link extends EditorHandler
 
 		$src = str_replace(array('&','"'), array('&amp;','&qout;'), $src);
 		$src = str_replace('&amp;amp;', '&amp;', $src);
-
-		//if(preg_match_all('/(?:(youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/embed\/))(.*)(?:\/W)?/i',$src,$matches)) {
-if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11}?)/i',$src,$matches)) {
+		
+		if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11}?)/i',$src,$matches)) {
 
 			/*if(strpos($src,"list=") !== false){
 					$youtube_id = substr($matches[2][0], 0, 35);
@@ -110,147 +110,146 @@ if(preg_match_all('/(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|y
 					//$youtube_id = $youtube_id.'?';
 					
 			}*/
-				// youtube의 id
-				//$yt_id = $youtube_id;
-				$yt_id = $matches[1][0];
-				$yt_ids = Context::get('yt_ids');
-				$yt_options = Context::get('yt_options');
-				// <div>의 개별 코드로 활용됨 ex) <div id="plyaer0">, <div id="plyaer1">
-				//플레이 리스트는 일단 자기 자신만 테스트삼아 추가
-				if($yt_loop == "1") $yt_playlist = $yt_id;
+			// youtube의 id
+			//$yt_id = $youtube_id;
+			$yt_id = $matches[1][0];
+			$yt_ids = Context::get('yt_ids');
+			$yt_options = Context::get('yt_options');
+			// <div>의 개별 코드로 활용됨 ex) <div id="plyaer0">, <div id="plyaer1">
+			//플레이 리스트는 일단 자기 자신만 테스트삼아 추가
+			if($yt_loop == "1") $yt_playlist = $yt_id;
 
-				// 처음일 경우에는 0임
-				if(empty($yt_ids)) {
-					$vars = Context::getRequestVars();
-			
-					$args->document_srl = $vars->document_srl;
-					$output = executeQuery('document.getDocument', $args, '');
-					
-					preg_match_all('/<img.*(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11})(?:\/W)?.*[^\?&\"\'>]/i',$output->data->content, $matches);
-
-
-
-					// 변수를 선언하고 첫번째 값 대입
-					$yt_ids = array();
-					$yt_ids[] = $yt_id;
-					Context::set('yt_ids', $yt_ids);
-
-					// $yt_howmany 가 0이되면 마지막임
-					Context::set('yt_howmany', (count($matches[0]) -1));
-					$yt_counter = 0;
-					Context::set('yt_counter', 0);
-					
-					$yt_options[$yt_id] = array( 
-						/* 기본 크기와 동영상 아이디
-						 * Options (Private). 
-						 *  
-						 * holds options for helper 
-						 */
-
-						'width'     => $width, 
-						'height'    => $height, 
-						'video_id'  => $yt_id);
-
-						/* 플레이어와 연관된 변수
-						 * Player Vars (Private). 
-						 *  
-						 * holds parameters for embedded player 
-						 * @see http://code.google.com/apis/youtube/player_parameters.html?playerVersion=HTML5 
-						 https://developers.google.com/youtube/youtube_player_demo?hl=ko
-						 */
-
-						$yt_options[$yt_id]["playerVars"] = array (
-						'autohide'  => 1, 
-						'autoplay'  => $auto_play, 
-						'controls'  => 1,
-						'color'		=>  'red',//'white';
-						'controls'	=> 1,
-						'disablekb'	=> 0,
-						'enablejsapi'   => 1,
-						'loop'      => 0, 
-						'modestbranding'	=> 1,
-						'origin'    => null, 
-						'rel'		=> 0, //관련영상 출력
-						'start'     => null,
-						'loop'		=> $yt_loop,
-						'playlist'	=> $yt_playlist,
-						'theme'     => 'light');//'dark');
-						
-						$yt_options[$yt_id]["event"] = array (
-						'volume'	=> $volume); 
-
-					Context::set('yt_options', $yt_options);
-
-				}else {
-					// 변수값 추가하기
-					$yt_ids[] = $yt_id;
-					Context::set('yt_ids', $yt_ids);
-					
-
-					// $yt_howmany 가 0이되면 마지막임
-					//$yt_howmany = Context::get('yt_howmany') -1;
-					//Context::set('yt_howmany', $yt_howmany);
-					$yt_counter = Context::get('yt_counter') +1;
-					Context::set('yt_counter', $yt_counter);
-	
-
-					$yt_options[$yt_id] = array( 
-						'width'     => $width, 
-						'height'    => $height, 
-						'video_id'  => $yt_id);
-						
-						$yt_options[$yt_id]["playerVars"] = array (
-						'autohide'  => 1, 
-						'autoplay'  => $auto_play, 
-						'controls'  => 1,
-						'color'		=>  'red',//'white';
-						'controls'	=> 1,
-						'disablekb'	=> 0,
-						'enablejsapi'   => 1,
-						'loop'      => 0, 
-						'modestbranding'	=> 1,
-						'origin'    => null, 
-						'rel'		=> 0, //관련영상 출력
-						'start'     => null,
-						'loop'		=> $yt_loop,
-						'playlist'	=> $yt_playlist,
-						'theme'     => 'light');//'dark');
-
-						$yt_options[$yt_id]["event"] = array (
-						'volume'	=> $volume); 
-
-					Context::set('yt_options', $yt_options);
-				}				
-
-				//require( 'youtube_helper.php');
-				//$youtubehelper = YoutubeHelper::loadClass('YoutubeHelper');
-	
-				$yh = new YoutubeHelper;
+			// 처음일 경우에는 0임
+			if(empty($yt_ids)) {
+				$vars = Context::getRequestVars();
 		
+				$args->document_srl = $vars->document_srl;
+				$output = executeQuery('document.getDocument', $args, '');
 				
-				if(Context::get('yt_howmany') == Context::get('yt_counter')) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
+				preg_match_all('/<img.*(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11})(?:\/W)?.*[^\?&\"\'>]/i',$output->data->content, $matches);
+
+				// 변수를 선언하고 첫번째 값 대입
+				$yt_ids = array();
+				$yt_ids[] = $yt_id;
+				Context::set('yt_ids', $yt_ids);
+
+				// $yt_howmany 가 0이되면 마지막임
+				Context::set('yt_howmany', (count($matches[0]) -1));
+				$yt_counter = 1;
+				Context::set('yt_counter', $yt_counter);
 				
+				$yt_options[$yt_counter] = array( 
+					/* 기본 크기와 동영상 아이디
+					 * Options (Private). 
+					 *  
+					 * holds options for helper 
+					 */
+
+					'width'     => $width, 
+					'height'    => $height, 
+					'video_id'  => $yt_id);
+
+					/* 플레이어와 연관된 변수
+					 * Player Vars (Private). 
+					 *  
+					 * holds parameters for embedded player 
+					 * @see http://code.google.com/apis/youtube/player_parameters.html?playerVersion=HTML5 
+					 https://developers.google.com/youtube/youtube_player_demo?hl=ko
+					 */
+
+					$yt_options[$yt_counter]["playerVars"] = array (
+					'autohide'  => 1, 
+					'autoplay'  => $auto_play, 
+					'controls'  => 1,
+					'color'		=>  'red',//'white';
+					'controls'	=> 1,
+					'disablekb'	=> 0,
+					'enablejsapi'   => 1,
+					'loop'      => 0, 
+					'modestbranding'	=> 1,
+					'origin'    => null, 
+					'rel'		=> 0, //관련영상 출력
+					'start'     => null,
+					'loop'		=> $yt_loop,
+					'playlist'	=> $yt_playlist,
+					'theme'     => 'light');//'dark');
+					
+					$yt_options[$yt_counter]["event"] = array (
+					'volume'	=> $volume); 
+
+				Context::set('yt_options', $yt_options);
+
+			}else {
+				// 변수값 추가하기
+				$yt_ids[] = $yt_id;
+				Context::set('yt_ids', $yt_ids);
 				
-				if($responsive == "true") $css_style = "<style>
-				.videowrapper {
-					float: none;
-					clear: both;
-					width: 100%;
-					position: relative;
-					padding-bottom: 56.25%;
-					padding-top: 25px;
-					height: 0;
-				}
-				.videowrapper iframe {
-					position: absolute;
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-				}</style>";
-				//'<pre>'.print_r($xml_obj,true).'</pre>'.
-				return $css_style.'<div class="videowrapper"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
+
+				// $yt_howmany 가 0이되면 마지막임
+				//$yt_howmany = Context::get('yt_howmany') -1;
+				//Context::set('yt_howmany', $yt_howmany);
+				$yt_counter = Context::get('yt_counter') +1;
+				Context::set('yt_counter', $yt_counter);
+
+
+				$yt_options[$yt_counter] = array( 
+					'width'     => $width, 
+					'height'    => $height, 
+					'video_id'  => $yt_id);
+					
+					$yt_options[$yt_counter]["playerVars"] = array (
+					'autohide'  => 1, 
+					'autoplay'  => $auto_play, 
+					'controls'  => 1,
+					'color'		=>  'red',//'white';
+					'controls'	=> 1,
+					'disablekb'	=> 0,
+					'enablejsapi'   => 1,
+					'loop'      => 0, 
+					'modestbranding'	=> 1,
+					'origin'    => null, 
+					'rel'		=> 0, //관련영상 출력
+					'start'     => null,
+					'loop'		=> $yt_loop,
+					'playlist'	=> $yt_playlist,
+					'theme'     => 'light');//'dark');
+
+					$yt_options[$yt_counter]["event"] = array (
+					'volume'	=> $volume); 
+
+				Context::set('yt_options', $yt_options);
+			}				
+
+			//require( 'youtube_helper.php');
+			//$youtubehelper = YoutubeHelper::loadClass('YoutubeHelper');
+
+			$yh = new YoutubeHelper;
 			
+			// youtube 개체수와 코드생성 회차를 비교하여 마지막에만 js 코드를 생성해 붙임		
+			if((Context::get('yt_howmany') + 1) == Context::get('yt_counter')) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
+
+			// 반응형 CSS 코드
+			if($responsive == "true") $css_style = "<style>
+			.videowrapper {
+				float: none;
+				clear: both;
+				width: 100%;
+				position: relative;
+				padding-bottom: 56.25%;
+				padding-top: 25px;
+				height: 0;
+			}
+			.videowrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}</style>";
+			//'<pre>'.print_r($xml_obj,true).'</pre>'.
+
+			// 완성된 youtube API 코드 리턴
+			return $css_style.'<div class="videowrapper"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
 		}
 
 
@@ -429,16 +428,18 @@ class YoutubeHelper {
         // Build JS code. 
 
 		foreach($divIds as $k => $divId) {
+			++$k;
 	        $this->_iframeCode .= 'var player'.$k.';'."\r\n"; 
 		}
 
    	    $this->_iframeCode .= 'function onYouTubePlayerAPIReady() {'."\r\n";		
 		foreach($divIds as $k => $divId) {
+			++$k;
 			$this->_iframeCode .= '	player'.$k.' = new YT.Player("player'.$k.'", {'."\r\n"; 
 			//$this->_iframeCode .= 'height: "'.(int)$this->_options['height'].'",'."\r\n"; 
-			$this->_iframeCode .= '	height: "'.(int)$options[$divId]['height'].'",'."\r\n"; 
+			$this->_iframeCode .= '	height: "'.(int)$options[$k]['height'].'",'."\r\n"; 
 			//$this->_iframeCode .= 'width:  "'.(int)$this->_options['width'].'",'."\r\n"; 
-			$this->_iframeCode .= '	width:  "'.(int)$options[$divId]['width'].'",'."\r\n"; 
+			$this->_iframeCode .= '	width:  "'.(int)$options[$k]['width'].'",'."\r\n"; 
 			//$this->_iframeCode .= 'videoId: "'.$this->_options['video_id'].'",'."\r\n"; 
 			$this->_iframeCode .= '	videoId: "'.$divId.'",'."\r\n"; 
 
@@ -450,7 +451,7 @@ class YoutubeHelper {
 
 			// Build player params. 
 			$options_params = null; 
-			foreach($options[$divId]["playerVars"] as $key => $value) { 
+			foreach($options[$k]["playerVars"] as $key => $value) { 
 				if(is_numeric($value) || !empty($value)) { 
 					 $options_params .= "'{$key}': "; 
 					 
@@ -483,9 +484,10 @@ class YoutubeHelper {
 		// 동영상 재생 함수
 		// 참고 https://developers.google.com/youtube/iframe_api_reference?hl=ko
 		foreach($divIds as $k => $divId) {
+			++$k;
 			$this->_iframeCode .= "function onPlayerReady".$k."(event) {
 	//event.target.playVideo('player".$k."');
-	player".$k.".setVolume(".$options[$divId]['event']['volume'].");
+	player".$k.".setVolume(".$options[$k]['event']['volume'].");
 	player".$k.".setPlaybackQuality('highres');"."\r\n";
 
 
