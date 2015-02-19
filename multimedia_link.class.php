@@ -126,7 +126,9 @@ class multimedia_link extends EditorHandler
 				$args->document_srl = $vars->document_srl;
 				$output = executeQuery('document.getDocument', $args, '');
 				
-				preg_match_all('/<img.*(?:youtube-nocookie\.com\/embed\/|youtube\.com\/watch\?v\=|youtube\.com\/v\/|youtu\.be\/?|youtube\.com\/embed\/).*?([0-9a-zA-Z-_]{11})(?:\/W)?.*[^\?&\"\'>]/i',$output->data->content, $matches);
+				$re = "/<img.*?(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?(?:.*&)?v=|(?:embed|v)\\/))([^\\?\\\"\\'\\>]{11}).*?[^\\w]/"; 
+				preg_match_all($re, $output->data->content, $match);
+				//preg_match_all('/<img.*?(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|(?:embed|v)\/))([^\?\"\'\>]{11}).*?[^\w]/g',$output->data->content, $matches);
 
 				// 변수를 선언하고 첫번째 값 대입
 				$yt_ids = array();
@@ -134,7 +136,7 @@ class multimedia_link extends EditorHandler
 				Context::set('yt_ids', $yt_ids);
 
 				// $yt_howmany 가 0이되면 마지막임
-				Context::set('yt_howmany', (count($matches[0]) -1));
+				Context::set('yt_howmany', count($match[1]));
 				$yt_counter = 1;
 				Context::set('yt_counter', $yt_counter);
 				
@@ -147,7 +149,8 @@ class multimedia_link extends EditorHandler
 
 					'width'     => $width, 
 					'height'    => $height, 
-					'video_id'  => $yt_id);
+					'video_id'  => $yt_id,
+					'responsive' => $responsive);
 
 					/* 플레이어와 연관된 변수
 					 * Player Vars (Private). 
@@ -157,7 +160,7 @@ class multimedia_link extends EditorHandler
 					 https://developers.google.com/youtube/youtube_player_demo?hl=ko
 					 */
 
-					$yt_options[$yt_counter]["playerVars"] = array (
+				$yt_options[$yt_counter]["playerVars"] = array (
 					'autohide'  => 1, 
 					'autoplay'  => $auto_play, 
 					'controls'  => 1,
@@ -173,7 +176,7 @@ class multimedia_link extends EditorHandler
 					'playlist'	=> $yt_playlist,
 					'theme'     => 'light');//'dark');
 					
-					$yt_options[$yt_counter]["event"] = array (
+				$yt_options[$yt_counter]["event"] = array (
 					'volume'	=> $volume); 
 
 				Context::set('yt_options', $yt_options);
@@ -194,7 +197,8 @@ class multimedia_link extends EditorHandler
 				$yt_options[$yt_counter] = array( 
 					'width'     => $width, 
 					'height'    => $height, 
-					'video_id'  => $yt_id);
+					'video_id'  => $yt_id,
+					'responsive' => $responsive);
 					
 					$yt_options[$yt_counter]["playerVars"] = array (
 					'autohide'  => 1, 
@@ -212,7 +216,7 @@ class multimedia_link extends EditorHandler
 					'playlist'	=> $yt_playlist,
 					'theme'     => 'light');//'dark');
 
-					$yt_options[$yt_counter]["event"] = array (
+				$yt_options[$yt_counter]["event"] = array (
 					'volume'	=> $volume); 
 
 				Context::set('yt_options', $yt_options);
@@ -224,30 +228,12 @@ class multimedia_link extends EditorHandler
 			$yh = new YoutubeHelper;
 			
 			// youtube 개체수와 코드생성 회차를 비교하여 마지막에만 js 코드를 생성해 붙임		
-			if((Context::get('yt_howmany') + 1) == Context::get('yt_counter')) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
+			if((Context::get('yt_howmany')) == $yt_counter) $yt_html_code = $yh->iframePlayer('http://www.youtube.com/watch?v='.$yt_id.'&feature=feedrec',$yt_ids, $yt_options);
 
-			// 반응형 CSS 코드
-			if($responsive == "true") $css_style = "<style>
-			.videowrapper {
-				float: none;
-				clear: both;
-				width: 100%;
-				position: relative;
-				padding-bottom: 56.25%;
-				padding-top: 25px;
-				height: 0;
-			}
-			.videowrapper iframe {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-			}</style>";
-			//'<pre>'.print_r($xml_obj,true).'</pre>'.
+
 
 			// 완성된 youtube API 코드 리턴
-			return $css_style.'<div class="videowrapper"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
+			return '<div class="'.($responsive == 'true'?'videowrapper':'normalwrapper').'"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
 		}
 
 
@@ -364,27 +350,45 @@ class YoutubeHelper {
      * @param string url - url of youtube video 
      * @param string divId - id of div element 
      */ 
-    function iframePlayer($url,$divId, $options) { 
+    function iframePlayer($url,$divIds, $options) { 
         // Get video id. 
-        $this->_parseVideoId($url); 
-
+        //$this->_parseVideoId($url); 
+		//$yt_count = Context::get('yt_count');
         // Validation. 
-        if(empty($this->_options['video_id'])) { 
-        //if(Context::get('yt_howmany') == 0) { 
+        /*if(empty($this->_options['video_id'])) {
+
             $this->_iframeCode = __('Video id cannot be left blank. Check url of youtube video.',true); 
         } else if(!is_numeric($this->_options['width']) || $this->_options['width'] < 1) { 
             $this->_iframeCode = __('Width of video player must be numeric and greather than 1.',true); 
         } else if(!is_numeric($this->_options['height']) || $this->_options['height'] < 1) { 
             $this->_iframeCode = __('Height of video player must be numeric and greather than 1.',true); 
-        } else { 
+        } else { */
             // Build code. 
+
   			$this->_iframeCode  = "\r\n".'<script type="text/javascript">'."\r\n";
 			
             //if(count($divId) == 1) $this->_loadIframePlayer();
+
+			// 반응형 CSS 코드
+			//if($responsive == "true") 
+			// 반응형으로 적용될 player ID 구하기
+			$iframeIds = '';
+			foreach($options as $key => $op) {
+				//$yt_options[$yt_counter]["playerVars"] 
+				if($op['responsive'] == "true") {
+					$iframeIds = '#player'.$key.(($key>1)?',':'')." ".$iframeIds;
+				}
+			}
+			$css_style =  "<style>"."\r\n".".videowrapper {float: none;clear: both;width: 100%;position:relative;	padding-bottom: 56.25%;	padding-top:25px;height:0;}"."\r\n".".normalwrapper {float: none;clear: both;position:relative;padding:20px 0;}"."\r\n".$iframeIds."{position: absolute;top:0;left:0;width:100%;height:100%;}"."\r\n"."</style>";
+			//'<pre>'.print_r($xml_obj,true).'</pre>'.
+			// 반응형 CSS HTML에 삽입하기
+			Context::addHtmlHeader($css_style);
+
+
 			$this->_loadIframePlayer();
-            $this->_createIframePlayer($divId, $options); 
+            $this->_createIframePlayer($divIds, $options); 
             $this->_closeIframePlayer(); 
-        } 
+        /*} */
 
         // Return code. 
         return $this->_iframeCode; 
@@ -513,7 +517,7 @@ class YoutubeHelper {
      *  
      * starts building iframe player code. 
      */ 
-    function _loadIframePlayer() { 
+    function _loadIframePlayer() {
         $this->_iframeCode .= 'var tag = document.createElement("script");'."\r\n"; 
         $this->_iframeCode .= 'tag.src = "http://www.youtube.com/player_api"'."\r\n"; 
         $this->_iframeCode .= 'var firstScriptTag = document.getElementsByTagName("script")[0]'."\r\n"; 
