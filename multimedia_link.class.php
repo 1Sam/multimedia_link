@@ -50,7 +50,7 @@ class multimedia_link extends EditorHandler
 		$src = $xml_obj->attrs->multimedia_src;
 		$start = $xml_obj->attrs->multimedia_start;
 		$style = $xml_obj->attrs->style;
-		$responsive = $xml_obj->attrs->multimedia_responsive;
+		$responsive = $xml_obj->attrs->multimedia_responsive | 'true';
 		$volume = $xml_obj->attrs->volume;
 
 		// https://developers.google.com/youtube/player_parameters?hl=ko#loop
