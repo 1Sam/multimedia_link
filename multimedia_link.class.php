@@ -51,13 +51,13 @@ class multimedia_link extends EditorHandler
 		$start = $xml_obj->attrs->multimedia_start;
 		$style = $xml_obj->attrs->style;
 		$responsive = $xml_obj->attrs->multimedia_responsive | 'true';
-		$volume = $xml_obj->attrs->volume;
+		$volume = $xml_obj->attrs->volume | '70';
 
 		// https://developers.google.com/youtube/player_parameters?hl=ko#loop
 		// 반복 재생을 위해서는 playlist가 꼭 필요함. 따라서 playlist에 자신의 id를 아래에서 지정하게 함.
 
 		//popup.html 에서 넘어온 추가 옵션
-		$yt_loop = $xml_obj->attrs->yt_loop;
+		$yt_loop = $xml_obj->attrs->yt_loop | '1';
 		//$playlist = 
 
 		/*//뭔가 이상해서 attrs에서 값을 참조하도록 수정하였음
@@ -72,21 +72,10 @@ class multimedia_link extends EditorHandler
 		if(!$width) $width = 896; //890
 		if(!$height) $height = 504; //530
 
-		$auto_start = $xml_obj->attrs->auto_start;
-		
-		if($auto_start!="true")
-		{
-			$auto_play = 0;
-			$auto_start = "false";
-			//youtube 자동재생 옵션
-			$auto_option = "autoplay=0";
-		}
-		else
-		{
-			$auto_play = 1;
-			$auto_start = "true";
-			$auto_option = "autoplay=1";
-		}
+		// 멀티미디어 컴포넌트에서 auto_play변수 였던 것이 auto_start로 변경되었음.
+		//기존 설정에서 누락된 경우 true로 지정
+		$auto_start = $xml_obj->attrs->auto_start | "true";
+		$auto_play = $auto_start=="true" ? '1': '0';
 			
 		$wmode = $xml_obj->attrs->wmode;
 		if($wmode == 'window') $wmode = 'window';
@@ -233,7 +222,7 @@ class multimedia_link extends EditorHandler
 
 
 			// 완성된 youtube API 코드 리턴
-			return '<div class="'.($responsive == 'true'?'videowrapper':'normalwrapper').'"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
+			return "\r\n".'<div class="'.($responsive == 'true'?'videowrapper':'normalwrapper').'"><div id="player'.(string)$yt_counter.'"></div></div>'.$yt_html_code;
 		}
 
 
@@ -259,7 +248,7 @@ class multimedia_link extends EditorHandler
 		// Vimeo
 		elseif(preg_match('/vimeo.com\/?.*\/(\d{8,11})(?:\W)?/', $src, $matches)){
 			$vimeo_id = $matches[1];
-			return sprintf("<div style=\"position:relative;padding-bottom:56.25&#37\"><iframe style=\"position:absolute; width:100&#37;; height:100&#37;\"  src=\"http://player.vimeo.com/video/%s?title=1&amp;byline=0&amp;portrait=0&amp;color=ff9933&amp;%s&amp;loop=1\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scolling=\"no\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>",$vimeo_id,$auto_option);
+			return sprintf("<div style=\"position:relative;padding-bottom:56.25&#37\"><iframe style=\"position:absolute; width:100&#37;; height:100&#37;\"  src=\"http://player.vimeo.com/video/%s?title=1&amp;byline=0&amp;portrait=0&amp;color=ff9933&amp;autoplay=%s&amp;loop=1\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scolling=\"no\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>",$vimeo_id,$auto_play);
 		}
 
 		//Tudou 동영상
