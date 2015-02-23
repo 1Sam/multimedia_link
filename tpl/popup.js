@@ -1,50 +1,46 @@
 /**
- * popup으로 열렸을 경우 부모창의 위지윅에디터에 select된 멀티미디어 컴포넌트 코드를 체크하여 있으면 가져와서 원하는 곳에 삽입
- 
- // 옵션 추가 메뉴얼
- 
- 옵션의 정의는 아래의 3개의 파일에 연결됩니다.
- popup.html 에서는 id="변수"
- popup.js 에서는 아래의 4단계를 참고하세요.
- multimedia_link.class.php에는 $xml_obj->attrs->변수 형태 사용합니다.
-
- 옵션으로 사용할 변수의 추가는 모두 4단계입니다. 1/4,2/4,3/4,4/4 단계로 변수를 추가하세요.
+ * popup으로 열렸을 경우 부모창의 위지윅에디터에 select된 멀티미디어 컴포넌트 코드를 체크하여
+ * 있으면 가져와서 원하는 곳에 삽입
  **/
+jQuery(function($){
 
-//창 열었을 때, 초기값 설정
-jQuery(function ($) {
-	if(!is_def(opener)) return;
+	(function(){
 
-	var $node = $(opener.editorPrevNode).filter('img'), attrs;
-	if(!$node.length) return;
+		if(!is_def(opener)) return;
+	
+		var $node = $(opener.editorPrevNode).filter('img'), attrs;
+		if(!$node.length) return;
+	
+	// 변수의 기본값
+		attrs = {
+			url     : $node.attr('multimedia_src') || null,
+			caption : $node.attr('alt') || null,
+			width   : $node.width() || '896',
+			height  : $node.height() || '504',
+			wmode   : $node.attr('wmode') || null
+		};
+	
+		$.each(attrs, function (key, val) {
+			get_by_id('multimedia_'+key).value = val;
+		});
+	
+		get_by_id('auto_start').checked = ($node.attr('auto_start') == 'true');
+		get_by_id('multimedia_responsive').checked = ($node.attr('multimedia_responsive') == 'true');
+	
+	// 1/4. 변수 추가
+	// 모두 4항목에 알맞은 형태로 추가해야합니다.
+	// multimedia_link.class.php로 넘어갈 때, 
+	// $xml_obj->attrs->변수
+	// 형태로 넘겨집니다.
+	// 변수의 저장된 값을 팝업창에 표시합니다.
+		get_by_id('yt_loop').checked = ($node.attr('yt_loop') || '0');
+		get_by_id('volume').value = ($node.attr('volume') || '70');
 
-// 변수의 기본값
-	attrs = {
-		url     : $node.attr('multimedia_src') || null,
-		caption : $node.attr('alt') || null,
-		width   : $node.width() || '896',
-		height  : $node.height() || '504',
-		wmode   : $node.attr('wmode') || null
-	};
 
-	$.each(attrs, function (key, val) {
-		get_by_id('multimedia_'+key).value = val;
+
 	});
 
-	get_by_id('auto_start').checked = ($node.attr('auto_start') == 'true');
-	get_by_id('multimedia_responsive').checked = ($node.attr('multimedia_responsive') == 'true');
-
-// 1/4. 변수 추가
-// 모두 4항목에 알맞은 형태로 추가해야합니다.
-// multimedia_link.class.php로 넘어갈 때, 
-// $xml_obj->attrs->변수
-// 형태로 넘겨집니다.
-// 변수의 저장된 값을 팝업창에 표시합니다.
-	get_by_id('yt_loop').checked = ($node.attr('yt_loop') || '0');
-	get_by_id('volume').value = ($node.attr('volume') || '70');
-
-	// 완료 버튼 클릭시
-	$('.btnArea button').click(function () {
+	$('.btnArea button').click(function(){
 		if(!is_def(opener)) return;
 	
 		var el_wmode = get_by_id('fo').elements['multimedia_wmode'];
@@ -104,4 +100,5 @@ jQuery(function ($) {
 		opener.editorFocus(opener.editorPrevSrl);
 		window.close();
 	});
-})(jQuery);
+
+});
